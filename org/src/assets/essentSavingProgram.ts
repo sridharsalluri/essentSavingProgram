@@ -66,7 +66,11 @@ app.post('/accounts', (req: Request, res: Response) => {
 
     accounts.push(newAccount);
 
-    return res.status(200).json(newAccount);
+    return res.status(200).json({
+      id: newAccount.id,
+      name: newAccount.name,
+      balance: newAccount.balance,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
@@ -114,7 +118,7 @@ app.post('/accounts/:accountId/deposits', (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Not Found' });
     }
 
-    account.balance += amount;
+    account.balance += Number(amount);
 
     return res.status(201).json({
       id: uuidv4(),
@@ -132,10 +136,9 @@ app.post('/accounts/:accountId/purchases', (req: Request, res: Response) => {
     const accountId = req.params.accountId;
     const { productId } = req.body;
     const simulatedDay = parseInt(req.get('Simulated-Day') || '0', 10);
-
     const account = accounts.find((acc) => acc.id === accountId);
     const product = products.find((prod) => prod.id === productId);
-    const latestPurchaseDay = account ? account.latestPurchaseDay : -1;
+    const latestPurchaseDay = account ? account.latestPurchaseDay : 0;
 
     if (!account || !product) {
       return res.status(400).json({ error: 'Invalid input' });
